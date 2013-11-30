@@ -1,7 +1,7 @@
-/* -*- Mode: C; indent-tabs-mode: t; c-basic-offset: 4; tab-width: 4 -*-  */
-/*
- * gstopwatch
+/* gstopwatch
+ *
  * Copyright (C) 2013 Jente (jthidskes at outlook dot com)
+ * Copyright (C) 2013 Calvin Morrison (mutantturkey@gmail.com) 
  *
  * gstopwatch is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,7 +61,7 @@ gboolean stopwatch_function (void) {
 	minutes = seconds / 60;
 	seconds -= 60 * minutes;
 	if(show_milliseconds)
-		sprintf(output, "%02d:%02d:%.2f", hours, minutes, seconds);
+		sprintf(output, "%02d:%02d:%.1f", hours, minutes, seconds);
 	else
 		sprintf(output, "%02d:%02d:%02d", hours, minutes, (int)seconds);
 

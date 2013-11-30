@@ -29,4 +29,5 @@ License
 
 You should have received a copy of the GNU General Public License along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+**Copyright © 2013** Calvin Morrison (mutantturkey@gmail.com com)
 **Copyright © 2013** Jente (jthidskes at outlook dot com)
