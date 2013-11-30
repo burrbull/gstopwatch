@@ -32,31 +32,51 @@ enum {
 };
 
 GTimer *stopwatch;
-gchar output[100];
-gint state = STOPPED, laps = 0, hours, minutes;
-gdouble seconds;
-GtkWidget *stopwatch_display, *button_stopwatch, *button_funcs, *tree;
+
+gint state = STOPPED;
+gint laps = 0;
+
+GtkWidget *stopwatch_display;
+GtkWidget *button_stopwatch;
+GtkWidget *button_funcs;
+GtkWidget *tree;
 GtkListStore *liststore;
 GtkTreeSelection *selection;
 GtkTreeIter selection_iter, iter;
 GdkColor color;
+gboolean show_milliseconds = TRUE;
+
+char output[100];
 
 gboolean stopwatch_function (void) {
 	gchar *markup;
-	gulong gulong;
+	int hours;
+	int minutes;
+	double seconds;
 
-	seconds = g_timer_elapsed(stopwatch, &gulong);
+	seconds = g_timer_elapsed(stopwatch, NULL);
+
 	hours = seconds / 3600;
 	seconds -= 3600 * hours;
 	minutes = seconds / 60;
 	seconds -= 60 * minutes;
-	sprintf(output, "%02d:%02d:%.2f", hours, minutes, seconds);
+	if(show_milliseconds)
+		sprintf(output, "%02d:%02d:%.2f", hours, minutes, seconds);
+	else
+		sprintf(output, "%02d:%02d:%02d", hours, minutes, (int)seconds);
 
 	gtk_label_set_text(GTK_LABEL(stopwatch_display), output);
 	markup = g_markup_printf_escaped("<span font=\"48\" weight=\"heavy\"><tt>%s</tt></span>", output);
 	gtk_label_set_markup(GTK_LABEL(stopwatch_display), markup);
 	g_free (markup);
 	return TRUE;
+}
+
+void toggle_millisecond(void) {
+		if(show_milliseconds) 
+			show_milliseconds = FALSE;
+		else
+			show_milliseconds = TRUE;
 }
 
 void add_lap (void) {
@@ -110,7 +130,7 @@ void on_funcs_button_clicked (void) {
 }
 
 int main (void) {
-	GtkWidget *window, *vbox, *hbox, *scroll;
+	GtkWidget *window, *vbox, *hbox, *scroll, *click;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 
@@ -118,7 +138,9 @@ int main (void) {
 
 	vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
 	hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+
 	stopwatch_display = gtk_label_new("");
+
 	button_stopwatch = gtk_button_new_with_label("Start");
 	gdk_color_parse("#67953C", &color);
 	gtk_widget_modify_fg(GTK_WIDGET(button_stopwatch), GTK_STATE_NORMAL, &color);
@@ -128,6 +150,7 @@ int main (void) {
 	g_object_set (scroll, "shadow-type", GTK_SHADOW_IN, NULL);
 
 	tree = gtk_tree_view_new();
+
 	liststore = gtk_list_store_new(N_COLUMNS, G_TYPE_INT, G_TYPE_STRING);
 	gtk_tree_view_set_rules_hint(GTK_TREE_VIEW(tree), TRUE);
 	gtk_tree_view_set_model(GTK_TREE_VIEW(tree), GTK_TREE_MODEL(liststore));
@@ -150,7 +173,9 @@ int main (void) {
 	gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
 	gtk_tree_view_set_enable_search(GTK_TREE_VIEW(tree), FALSE);
 
-	gtk_box_pack_start(GTK_BOX(vbox), stopwatch_display, FALSE, TRUE, 5);
+	click = gtk_event_box_new();
+	gtk_container_add(GTK_CONTAINER(click), stopwatch_display);
+	gtk_box_pack_start(GTK_BOX(vbox), click, FALSE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(hbox), button_stopwatch, TRUE, TRUE, 5);
 	gtk_box_pack_start(GTK_BOX(hbox), button_funcs, TRUE, TRUE, 5);
 	gtk_container_add(GTK_CONTAINER(vbox), hbox);
@@ -171,6 +196,9 @@ int main (void) {
 	g_signal_connect(button_stopwatch, "clicked", G_CALLBACK(on_stopwatch_button_clicked), NULL);
 	g_signal_connect(button_funcs, "clicked", G_CALLBACK(on_funcs_button_clicked), NULL);
 
+	g_signal_connect(click, "button_press_event", G_CALLBACK(toggle_millisecond), NULL);
 	gtk_main();
 	g_timer_destroy(stopwatch);
+	
+	return 0;
 }

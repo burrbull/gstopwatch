@@ -7,7 +7,7 @@ CFLAGS  = -std=c99 -Wall -Wextra
 PREFIX   ?= /usr/local
 BINPREFIX = $(PREFIX)/bin
 
-all: CFLAGS += -Os
+all: CFLAGS += -O3 -mtune=native
 all: $(PROG)
 
 debug: CFLAGS += -O0 -g -pedantic
