@@ -47,6 +47,7 @@ GdkColor color;
 gboolean show_milliseconds = TRUE;
 
 char output[100];
+char output_old[100];
 
 gboolean stopwatch_function (void) {
 	gchar *markup;
@@ -65,10 +66,14 @@ gboolean stopwatch_function (void) {
 	else
 		sprintf(output, "%02d:%02d:%02d", hours, minutes, (int)seconds);
 
-	gtk_label_set_text(GTK_LABEL(stopwatch_display), output);
-	markup = g_markup_printf_escaped("<span font=\"48\" weight=\"heavy\"><tt>%s</tt></span>", output);
-	gtk_label_set_markup(GTK_LABEL(stopwatch_display), markup);
-	g_free (markup);
+	if(strcmp(output, output_old) != 0) {
+		gtk_label_set_text(GTK_LABEL(stopwatch_display), output);
+		markup = g_markup_printf_escaped("<span font=\"48\" weight=\"heavy\"><tt>%s</tt></span>", output);
+		gtk_label_set_markup(GTK_LABEL(stopwatch_display), markup);
+		g_free (markup);
+	}
+
+	strcpy(output_old, output);	
 	return TRUE;
 }
 
